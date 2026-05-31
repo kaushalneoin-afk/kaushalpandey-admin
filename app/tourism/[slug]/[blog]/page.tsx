@@ -14,8 +14,6 @@ export default function BlogPage() {
   const [blog, setBlog] = useState<any>(null)
   const [recommended, setRecommended] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [likeCount, setLikeCount] = useState(0)
-  const [commentCount, setCommentCount] = useState(0)
   const [commentName, setCommentName] = useState('')
   const [commentText, setCommentText] = useState('')
   const [showNameModal, setShowNameModal] = useState(false)
@@ -36,13 +34,14 @@ export default function BlogPage() {
         .filter((b: any) => b._id !== blogData._id)
         .slice(0, 12)
       setRecommended(others)
-      fetch(apiUrl(`/reviews/${blogData._id}/counts`))
-        .then(r => r.json())
-        .then(c => { setLikeCount(c.likes); setCommentCount(c.comments) })
-        .catch(() => {})
     }).catch(() => setBlog(null))
       .finally(() => setLoading(false))
   }, [slug])
+
+  const resetPage = () => {
+    setCommentName('')
+    setCommentText('')
+  }
 
   const handleLike = () => {
     if (!commentName.trim()) {
@@ -51,10 +50,12 @@ export default function BlogPage() {
       return
     }
     if (!blog?._id) return
-    setLikeCount(prev => prev + 1)
     setSuccessMessage('Thank you for your like! Your response has been sent to the admin team.')
     setShowSuccess(true)
-    setTimeout(() => setShowSuccess(false), 4000)
+    setTimeout(() => {
+      setShowSuccess(false)
+      resetPage()
+    }, 4000)
     fetch(apiUrl('/reviews'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -69,11 +70,13 @@ export default function BlogPage() {
       return
     }
     if (!commentText.trim() || !blog?._id) return
-    setCommentCount(prev => prev + 1)
     setCommentText('')
     setSuccessMessage('Thank you for your comment! Your response has been sent to the admin team.')
     setShowSuccess(true)
-    setTimeout(() => setShowSuccess(false), 4000)
+    setTimeout(() => {
+      setShowSuccess(false)
+      resetPage()
+    }, 4000)
     fetch(apiUrl('/reviews'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -105,6 +108,10 @@ export default function BlogPage() {
         </motion.button>
 
         <div className="space-y-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <h1 className="text-2xl md:text-3xl font-bold mb-3">{blog.title}</h1>
+          </motion.div>
+
           {blog.videoUrl && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <VideoPlayer url={blog.videoUrl} type={blog.videoType || 'youtube'} poster={blog.thumbnail} />
@@ -117,15 +124,20 @@ export default function BlogPage() {
             </motion.div>
           )}
 
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.02 }}>
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Calendar size={14} />
+              <span>{new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+            </div>
+          </motion.div>
+
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
             <div className="flex items-center gap-6 py-4 border-y border-gray-200">
               <button onClick={handleLike} className="flex items-center gap-2 text-sm text-gray-600 hover:text-red-500 transition-colors">
                 <Heart size={20} className="hover:fill-red-500 transition-colors" />
-                <span className="font-medium">{likeCount}</span>
               </button>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <MessageCircle size={20} />
-                <span className="font-medium">{commentCount}</span>
               </div>
               <div className="flex-1" />
               {!commentName.trim() ? (
@@ -258,11 +270,6 @@ export default function BlogPage() {
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
             <h1 className="text-2xl md:text-3xl font-bold mb-3">{blog.title}</h1>
-            <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-              <span className="flex items-center gap-1">
-                <Calendar size={14} /> {new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-              </span>
-            </div>
             <p className="text-gray-600 leading-relaxed whitespace-pre-line">{blog.content}</p>
           </motion.div>
         </div>

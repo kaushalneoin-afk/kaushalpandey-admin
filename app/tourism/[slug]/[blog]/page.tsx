@@ -51,15 +51,14 @@ export default function BlogPage() {
       return
     }
     if (!blog?._id) return
+    setLikeCount(prev => prev + 1)
+    setSuccessMessage('Thank you for your like! Your response has been sent to the admin team.')
+    setShowSuccess(true)
+    setTimeout(() => setShowSuccess(false), 4000)
     fetch(apiUrl('/reviews'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ blogId: blog._id, type: 'like', name: commentName }),
-    }).then(r => r.json()).then(() => {
-      setLikeCount(prev => prev + 1)
-      setSuccessMessage('Thank you for your like! Your response has been sent to the admin team.')
-      setShowSuccess(true)
-      setTimeout(() => setShowSuccess(false), 4000)
     }).catch(() => {})
   }
 
@@ -70,16 +69,15 @@ export default function BlogPage() {
       return
     }
     if (!commentText.trim() || !blog?._id) return
+    setCommentCount(prev => prev + 1)
+    setCommentText('')
+    setSuccessMessage('Thank you for your comment! Your response has been sent to the admin team.')
+    setShowSuccess(true)
+    setTimeout(() => setShowSuccess(false), 4000)
     fetch(apiUrl('/reviews'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ blogId: blog._id, type: 'comment', name: commentName, content: commentText }),
-    }).then(r => r.json()).then(() => {
-      setCommentCount(prev => prev + 1)
-      setCommentText('')
-      setSuccessMessage('Thank you for your comment! Your response has been sent to the admin team.')
-      setShowSuccess(true)
-      setTimeout(() => setShowSuccess(false), 4000)
     }).catch(() => {})
   }
 

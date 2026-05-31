@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { Map, ChevronRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { getDriveImageUrl } from '@/lib/utils'
+import { getDriveImageUrl, apiUrl } from '@/lib/utils'
 import { Loading } from '@/components/Loading'
 
 export default function Tourism() {
@@ -13,9 +13,16 @@ export default function Tourism() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/destinations`)
+    fetch(apiUrl('/destinations'))
       .then(res => res.json())
-      .then(data => setDestinations(data))
+      .then(data => {
+        const sorted = [...data].sort((a, b) => {
+          if (a.slug === 'manali') return -1
+          if (b.slug === 'manali') return 1
+          return 0
+        })
+        setDestinations(sorted)
+      })
       .catch(() => setDestinations([]))
       .finally(() => setLoading(false))
   }, [])
@@ -57,8 +64,8 @@ export default function Tourism() {
               >
                 <div className="relative h-48 overflow-hidden bg-gray-100">
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-10" />
-                    {dest.bannerImage && (
-                    <img src={getDriveImageUrl(dest.bannerImage)} alt={dest.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    {(dest.bannerImage || dest.thumbnail) && (
+                    <img src={getDriveImageUrl(dest.bannerImage || dest.thumbnail)} alt={dest.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   )}
                   <div className="absolute top-3 left-3 z-20">
                     <span className="px-2.5 py-1 bg-white/90 text-gray-700 text-xs font-medium rounded-md">

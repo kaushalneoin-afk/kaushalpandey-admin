@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { ArrowLeft, Calendar, MapPin } from 'lucide-react'
-import { getDriveImageUrl } from '@/lib/utils'
+import { getDriveImageUrl, apiUrl } from '@/lib/utils'
 import { Loading } from '@/components/Loading'
 
 export default function DestinationPage() {
@@ -16,8 +16,8 @@ export default function DestinationPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/destinations/${slug}`).then(r => r.json()),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs?destination=${slug}&published=true`).then(r => r.json())
+      fetch(apiUrl(`/destinations/${slug}`)).then(r => r.json()),
+      fetch(apiUrl(`/blogs?destination=${slug}&published=true`)).then(r => r.json())
     ])
       .then(([dest, blogs]) => setDestination({ ...dest, blogs }))
       .catch(() => setDestination(null))

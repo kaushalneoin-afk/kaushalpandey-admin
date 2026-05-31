@@ -147,14 +147,36 @@ export default function ProfileManager() {
             <h3 className="font-semibold mb-4 text-sm">Images</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Avatar URL</label>
-                <input type="text" value={profile.avatar || ''} onChange={(e) => setProfile({ ...profile, avatar: e.target.value })}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+                <label className="block text-xs font-medium text-gray-600 mb-1">Profile Photo (512×512)</label>
+                <div className="flex items-center gap-2">
+                  <input type="text" value={profile.avatar || ''} onChange={(e) => setProfile({ ...profile, avatar: e.target.value })}
+                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black" placeholder="URL" />
+                  <input type="file" accept="image/*" className="hidden" id="avatarUpload" onChange={async (e) => {
+                    const file = e.target.files?.[0]; if (!file) return
+                    try { const url = await uploadService.uploadDocumentDirect(file); setProfile({ ...profile, avatar: url }); toast.success('Photo uploaded!') }
+                    catch { toast.error('Upload failed') }
+                  }} />
+                  <label htmlFor="avatarUpload" className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 text-sm text-gray-600 whitespace-nowrap">
+                    <Upload size={16} /> Upload
+                  </label>
+                </div>
+                {profile.avatar && <span className="text-xs text-green-600 mt-1 inline-block">Photo uploaded</span>}
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Banner URL</label>
-                <input type="text" value={profile.banner || ''} onChange={(e) => setProfile({ ...profile, banner: e.target.value })}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+                <label className="block text-xs font-medium text-gray-600 mb-1">Banner</label>
+                <div className="flex items-center gap-2">
+                  <input type="text" value={profile.banner || ''} onChange={(e) => setProfile({ ...profile, banner: e.target.value })}
+                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black" placeholder="URL" />
+                  <input type="file" accept="image/*" className="hidden" id="bannerUpload" onChange={async (e) => {
+                    const file = e.target.files?.[0]; if (!file) return
+                    try { const url = await uploadService.uploadDocumentDirect(file); setProfile({ ...profile, banner: url }); toast.success('Banner uploaded!') }
+                    catch { toast.error('Upload failed') }
+                  }} />
+                  <label htmlFor="bannerUpload" className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 text-sm text-gray-600 whitespace-nowrap">
+                    <Upload size={16} /> Upload
+                  </label>
+                </div>
+                {profile.banner && <span className="text-xs text-green-600 mt-1 inline-block">Banner uploaded</span>}
               </div>
             </div>
           </div>
@@ -162,7 +184,7 @@ export default function ProfileManager() {
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h3 className="font-semibold mb-4 text-sm">Social Links</h3>
             <div className="grid grid-cols-2 gap-4">
-              {['github', 'linkedin', 'twitter', 'instagram', 'youtube'].map(s => (
+              {['github', 'linkedin', 'facebook'].map(s => (
                 <div key={s}>
                   <label className="block text-xs font-medium text-gray-600 capitalize mb-1">{s}</label>
                   <input type="url" value={profile.socialLinks?.[s] || ''}
